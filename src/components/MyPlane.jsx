@@ -1,17 +1,50 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 
 import { Plane, useTexture } from "@react-three/drei";
 import { Suspense, useEffect, useRef } from "react";
+import { TextureLoader } from "three";
+
+let files = ["flowers.jpg", "light.jpg"];
+let img = `../public/${files[0]}`;
+
+// window.onclick = (e) => {
+//   if (trace == 2) {
+//     trace = 0;
+//   }
+
+//   img = `..public/${files[trace]}`;
+//   console.log(img);
+//   trace++;
+// };
+
+let handleImageLoad = () => {
+  console.log("clicked");
+  img = `../public/${files[1]}`;
+};
 
 let MyPlane = () => {
-  let time = 100;
-
   let state = useThree();
+  let textures = useLoader(TextureLoader, [
+    "../public/trails.jpg",
+    "../public/flowers.jpg",
+    "../public/light.jpg",
+  ]);
+  let trace = 0;
+  let loadedImg = textures[trace];
 
+  window.addEventListener("click", () => {
+    trace++;
+    if (trace == 3) {
+      trace = 0;
+    }
+    loadedImg = textures[trace];
+
+    uniformsRef.current.image.value = loadedImg;
+  });
   const uniformsRef = useRef({
-    image: { value: useTexture("../public/trails.jpg") },
+    image: { value: loadedImg },
     u_time: { value: 0 },
     u_resolution: {
       value: state.size.width * state.size.height,
@@ -20,28 +53,13 @@ let MyPlane = () => {
     },
     u_mouse: { value: { x: 0.24, y: 1 } },
   });
-
-  const handleMouseMove = (event) => {
-    const { clientX, clientY } = event;
-    const { innerWidth, innerHeight } = window;
-    const mouse = {
-      x: (clientX / innerWidth) * 2 - 1,
-      y: -(clientY / innerHeight) * 2 + 1,
-    };
-    uniformsRef.current.u_mouse.value = mouse;
-  };
-
-  useEffect(() => {
-    window.addEventListener("pointermove", handleMouseMove);
-
-    window.removeEventListener("pointermove", handleMouseMove);
-  }, []);
-
+  // console.log("CLICKED FOR!!");
   let sm = Math.max(state.size.width, state.size.height);
   useFrame(({ clock, scene, pointer }) => {
     uniformsRef.current.u_time.value = clock.elapsedTime;
     uniformsRef.current.u_mouse.value = pointer;
-    // console.log("Pointer: ", pointer);
+    // uniformsRef.current.image.value = img;
+    // console.log("TRACE: ", trace);
     // console.log(uniformsRef.current.u_mouse.value.x);
   });
 

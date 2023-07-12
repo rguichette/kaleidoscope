@@ -34,7 +34,7 @@ function App() {
       <Info />
       {/* top-0.5 left-0.5 translate-x-0.5 translate-y-0.5 */}
       <div className="fixed top-0 left-0 bottom-0 right-0 -z-10">
-        <Suspense>
+        <Suspense fallback={null}>
           <Canvas
             ref={canvasRef}
             eventSource={eItem}
