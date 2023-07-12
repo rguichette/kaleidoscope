@@ -8,27 +8,41 @@ import { Suspense, useEffect, useRef } from "react";
 let MyPlane = () => {
   let time = 100;
 
-  let clock = useThree();
+  let state = useThree();
 
   const uniformsRef = useRef({
     image: { value: useTexture("../public/trails.jpg") },
     u_time: { value: 0 },
+    u_resolution: {
+      value: state.size.width * state.size.height,
+      x: state.size.width,
+      y: state.size.height,
+    },
+    u_mouse: { value: { x: 0.24, y: 1 } },
   });
 
-  // let uniforms = {
-  //   image: { value: useTexture("../public/trails.jpg") },
-  //   u_time: {
-  //     value: 0,
-  //   },
-  // };
+  const handleMouseMove = (event) => {
+    const { clientX, clientY } = event;
+    const { innerWidth, innerHeight } = window;
+    const mouse = {
+      x: (clientX / innerWidth) * 2 - 1,
+      y: -(clientY / innerHeight) * 2 + 1,
+    };
+    uniformsRef.current.u_mouse.value = mouse;
+  };
 
-  let state = useThree();
+  useEffect(() => {
+    window.addEventListener("pointermove", handleMouseMove);
 
-  console.log(state.size);
+    window.removeEventListener("pointermove", handleMouseMove);
+  }, []);
 
   let sm = Math.max(state.size.width, state.size.height);
-  useFrame(({ clock }) => {
+  useFrame(({ clock, scene, pointer }) => {
     uniformsRef.current.u_time.value = clock.elapsedTime;
+    uniformsRef.current.u_mouse.value = pointer;
+    // console.log("Pointer: ", pointer);
+    // console.log(uniformsRef.current.u_mouse.value.x);
   });
 
   return (

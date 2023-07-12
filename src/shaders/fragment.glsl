@@ -26,7 +26,7 @@ void main(void)
     vec2 mouse=u_mouse/u_resolution;
     
     // get the angle and radius
-    float radius=length(uv);
+    float radius=length(uv)+u_mouse.x;
     float angle=atan(uv.y,uv.x);
     
     angle/=PI*2.;
@@ -42,7 +42,7 @@ void main(void)
         
     }
     
-    angle+=u_time;
+    angle+=u_time*.5;
     
     //    angle /= SEGMENTS;
     //    angle *= PI *2.0;
@@ -53,6 +53,7 @@ void main(void)
     point=fract(point);
     
     vec4 color=texture2D(image,point);
+    // vec4 color=vec4(u_mouse.x,0.,.5,1.);
     
     gl_FragColor=color;
 }
